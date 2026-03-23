@@ -1,5 +1,8 @@
 local M = {}
 
+local config = require("livepreview.config").config
+local assets = config.assets or {}
+
 -- HTML escape function using table-based substitution for better performance
 local html_escapes = {
 	["&"] = "&amp;",
@@ -8,6 +11,18 @@ local html_escapes = {
 	['"'] = "&quot;",
 	["'"] = "&#39;",
 }
+
+local function assets(type, paths, base_path)
+	local result = ""
+	for _, path in ipairs(paths) do
+		if type == "css" then
+			result = result .. '<link rel="stylesheet" href="/live-preview.nvim/' .. base_path .. '/' .. html_escape(path) .. '">'
+		elseif type == "js" then
+			result = result .. '<script defer src="/live-preview.nvim/' .. base_path .. '/' .. html_escape(path) .. '"></script>'
+		end
+	end
+	return result
+end
 
 local function html_escape(text)
 	if not text or text == "" then
@@ -54,23 +69,46 @@ local html_template = function(body, stylesheet, script_tag)
 end
 
 M.md2html = function(md)
-	local script =
-		[[<script defer src="/live-preview.nvim/static/markdown/line-numbers.js"></script><script defer src="/live-preview.nvim/static/markdown/markdown-it-emoji.min.js"></script><script defer src='/live-preview.nvim/static/markdown/markdown-it.min.js'></script><script defer src='/live-preview.nvim/static/markdown/markdown-it-katex.js'></script><script defer src='/live-preview.nvim/static/markdown/main.js'></script>]]
-	local stylesheet = [[<link rel="stylesheet" href="/live-preview.nvim/static/markdown/github-markdown.min.css">]]
-	return html_template(html_escape(md), stylesheet, script)
+	local js = {
+		"markdown/line-numbers.js",
+		"markdown/markdown-it-emoji.min.js",
+		"markdown/markdown-it.min.js",
+		"markdown/markdown-it-katex.js",
+		"markdown/main.js"
+	}
+	local user_js = assets.markdown and assets.markdown.js or {}
+	local css = {
+		"markdown/github-markdown.min.css"
+	}
+	local user_css = assets.markdown and assets.markdown.css or {}
+
+	return html_template(html_escape(md), assets('css', css, 'static') .. assets('css', user_css, 'static/user'), assets('js', js, 'static') .. assets('js', user_js, 'static/user'))
 end
 
 M.adoc2html = function(adoc)
-	local script =
-		[[<script defer src="/live-preview.nvim/static/asciidoc/asciidoctor.min.js"></script><script defer src='/live-preview.nvim/static/asciidoc/main.js'></script>]]
-	local stylesheet = [[<link rel="stylesheet" href="/live-preview.nvim/static/asciidoc/asciidoctor.min.css">]]
-	return html_template(adoc, stylesheet, script)
+	local js = {
+		"static/asciidoc/asciidoctor.min.js",
+		"static/asciidoc/main.js"
+	}
+	local user_js = assets.asciidoc and assets.asciidoc.js or {}
+	local css = {
+		"static/asciidoc/asciidoctor.min.css"
+	}
+	local user_css = assets.asciidoc and assets.asciidoc.css or {}
+
+	return html_template(adoc, assets('css', css, 'static') .. assets('css', user_css, 'static/user'), assets('js', js, 'static') .. assets('js', user_js, 'static/user'))
 end
 
 M.svg2html = function(svg)
-	return [[<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Live preview</title><script defer src='/live-preview.nvim/static/ws-client.js'></script></head><body><div class='markdown-body'>]]
+	local user_css = assets.svg and assets.svg.css or {}
+	local user_js = assets.svg and assets.svg.js or {}
+	return "<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Live preview</title>"
+		.. assets('css', user_css, 'static/user')
+		.. "<script defer src='/live-preview.nvim/static/ws-client.js'></script>"
+		.. assets('js', user_js, 'static/user')
+		.. "</head><body><div class='markdown-body'>"
 		.. svg:gsub("<%?xml[^>]*%?>%s*", "")
-		.. [[</div></body></html>]]
+		.. "</div></body></html>"
 end
 
 M.toHTML = function(text, filetype)
@@ -85,11 +123,13 @@ end
 
 M.handle_body = function(data)
 	local ws_script = "<script src='/live-preview.nvim/static/ws-client.js'></script>"
+	local user_css = assets.html and assets.html.css or {}
+	local user_js = assets.html and assets.html.js or {}
 	local body
 	if data:match("<head>") then
-		body = data:gsub("<head>", "<head>" .. ws_script)
+		body = data:gsub("<head>", "<head>" .. assets('css', user_css, 'static/user') .. ws_script .. assets('js', user_js, 'static/user'))
 	else
-		body = ws_script .. data
+		body = "<head>" .. assets('css', user_css, 'static/user') .. ws_script .. assets('js', user_js, 'static/user') .. "</head>" .. data
 	end
 	return body
 end

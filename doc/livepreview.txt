@@ -48,6 +48,21 @@ Explaination of each option:
   |fzf-lua|, |mini.pick|, |snacks.picker| or |vim.ui.select|. If nil, the plugin look for the first available picker
   when you call the `pick` command.
 - `address`: Hostname/IP-address to bind the server to. Default: `127.0.0.1`.
+- `assets`: Optional table for per-filetype assets. Example:
+
+  ```lua
+  require('livepreview.config').set({
+    assets = {
+      markdown = { css = {'/custom/md.css'}, js = {'/custom/md.js'} },
+      html = { css = {'/custom/html.css'}, js = {'/custom/html.js'} },
+      asciidoc = { css = {'/custom/adoc.css'}, js = {'/custom/adoc.js'} },
+      svg = { css = {'/custom/svg.css'}, js = {'/custom/svg.js'} },
+    },
+  })
+  ```
+
+  When a supported file subtype is rendered, these links are injected into the
+  generated preview HTML `<head>` for that file type.
 
 Note: If you wish to config the plugin in Vimscript, see |v:lua-call| for
 instruction on how to call Lua function in Vimscript

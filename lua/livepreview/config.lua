@@ -17,6 +17,12 @@ M.pickers = {
 ---@field browser string? browser to open the preview in
 ---@field dynamic_root boolean? Whether to use the basename of the file as the root
 ---@field sync_scroll boolean? Whether to sync scroll the preview with the editor
+---@field assets table?<
+---   html = { css = {string}, js = {string} },
+---   markdown = { css = {string}, js = {string} },
+---   asciidoc = { css = {string}, js = {string} },
+---   svg = { css = {string}, js = {string} }
+--- >
 M.default = {
 	picker = "",
 	address = "127.0.0.1",
@@ -24,6 +30,7 @@ M.default = {
 	browser = "default",
 	dynamic_root = false,
 	sync_scroll = true,
+	assets = {},
 }
 
 M.config = vim.deepcopy(M.default)

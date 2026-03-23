@@ -130,8 +130,29 @@ autocmd InsertLeavePre,TextChanged,TextChangedP * silent! write
 
 You can configure this plugin by passing a table to the Lua function
 ```lua
-require('livepreview.config').set()
+require('livepreview.config').set({
+  assets = {
+    markdown = {
+      css = {"/your/path/custom-md.css"},
+      js  = {"/your/path/custom-md.js"},
+    },
+    html = {
+      css = {"/your/path/custom-html.css"},
+      js  = {"/your/path/custom-html.js"},
+    },
+    asciidoc = {
+      css = {"/your/path/custom-adoc.css"},
+      js  = {"/your/path/custom-adoc.js"},
+    },
+    svg = {
+      css = {"/your/path/custom-svg.css"},
+      js  = {"/your/path/custom-svg.js"},
+    },
+  },
+})
 ```
+
+Additional CSS/JS files defined here are injected into the preview HTML head for each matching file type.
 
 See [`:h livepreview`](./doc/livepreview.txt) for all configurations options, as well as usage and FAQ.
 
