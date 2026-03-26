@@ -97,7 +97,10 @@ function Server:routes(path)
 		path = "/index.html"
 	end
 	local plugin_req = "/live-preview.nvim/"
-	if path:sub(1, #plugin_req) == plugin_req then
+	local user_req = "/live-preview.nvim/user/"
+	if path:sub(1, #user_req) == user_req then
+		return vim.fs.joinpath(self.webroot, path:sub(#user_req + 1))
+	elseif path:sub(1, #plugin_req) == plugin_req then
 		return vim.fs.joinpath(get_plugin_path(), path:sub(#plugin_req + 1))
 	else
 		return vim.fs.joinpath(self.webroot, path)

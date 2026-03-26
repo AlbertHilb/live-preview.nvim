@@ -82,21 +82,21 @@ M.md2html = function(md)
 	}
 	local user_css = assets.markdown and assets.markdown.css or {}
 
-	return html_template(html_escape(md), assets('css', css, 'static') .. assets('css', user_css, 'static/user'), assets('js', js, 'static') .. assets('js', user_js, 'static/user'))
+	return html_template(html_escape(md), assets('css', css, 'static') .. assets('css', user_css, 'user'), assets('js', js, 'static') .. assets('js', user_js, 'user'))
 end
 
 M.adoc2html = function(adoc)
 	local js = {
-		"static/asciidoc/asciidoctor.min.js",
-		"static/asciidoc/main.js"
+		"asciidoc/asciidoctor.min.js",
+		"asciidoc/main.js"
 	}
 	local user_js = assets.asciidoc and assets.asciidoc.js or {}
 	local css = {
-		"static/asciidoc/asciidoctor.min.css"
+		"asciidoc/asciidoctor.min.css"
 	}
 	local user_css = assets.asciidoc and assets.asciidoc.css or {}
 
-	return html_template(adoc, assets('css', css, 'static') .. assets('css', user_css, 'static/user'), assets('js', js, 'static') .. assets('js', user_js, 'static/user'))
+	return html_template(adoc, assets('css', css, 'static') .. assets('css', user_css, 'user'), assets('js', js, 'static') .. assets('js', user_js, 'user'))
 end
 
 M.svg2html = function(svg)
